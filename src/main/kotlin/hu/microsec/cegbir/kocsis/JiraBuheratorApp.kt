@@ -15,6 +15,7 @@ import org.springframework.boot.runApplication
 
 private const val MOVE_TO_READY = "m"
 private const val CLOSE_REMAINED = "c"
+private const val RELEASE = "r"
 
 @EnableConfigurationProperties(JiraProperties::class)
 @SpringBootApplication()
@@ -27,15 +28,22 @@ open class JiraBuheratorApp(
         val optionsFunctions = OptionGroup().apply {
             addOption(Option.builder(MOVE_TO_READY).longOpt("move2ready").desc("move in current sprint to ready").build())
             addOption(Option.builder(CLOSE_REMAINED).longOpt("closeRemained").desc("close done issues remaind in progress").build())
-            addOption(Option.builder("t").longOpt("test").desc("move in current sprint to ready").build())
+            addOption(Option.builder(RELEASE).longOpt("release").hasArg().argName("format").desc("report about issues in release status (format: txt, html)").build())
+            addOption(Option.builder("t").longOpt("test").desc("just test").build())
         }
 
         val options = Options().addOptionGroup(optionsFunctions)
         DefaultParser().parse(options, args).run {
             when {
-                hasOption("t") -> tester.test()
+                hasOption("t") -> tester.test() // sprint
                 hasOption(MOVE_TO_READY) -> sprintHelper.moveToReady()
-                hasOption(CLOSE_REMAINED) -> sprintHelper.closeRemained()
+                hasOption(CLOSE_REMAINED) -> sprintHelper.closeRemained() // release
+                hasOption(RELEASE) -> getOptionValue(RELEASE).run {
+                    when (this) {
+                        "html" -> release.listHtml()
+                        else -> release.listTxt()
+                    }
+                }
 
                 else -> {
                     HelpFormatter().printHelp(this.javaClass.simpleName.substringBefore("$$"), options, true)
