@@ -8,14 +8,12 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConfigurationProperties(prefix = "jira")
 data class JiraProperties(
     val url: String = "",
-    val username: String = "",
-    val password: String = "",
+    val personalAccessToken: String = "",
 ) {
     init { // @formatter:off
         log.info("Read JIRA configuration parameters:\n" +
                 "\turl: [$url]\n" +
-                "\tusername: [$username]\n" +
-                "\tpassword: [${(if (password.isNotEmpty()) "***" else "")}]")
+                "\tpersonalAccessToken: [${(if (personalAccessToken.isNotEmpty()) "***" else "")}]")
         // @formatter:on
     }
 
