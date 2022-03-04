@@ -1,6 +1,7 @@
 package hu.microsec.cegbir.kocsis
 
-import hu.microsec.cegbir.kocsis.helper.Release
+import hu.microsec.cegbir.kocsis.helper.ReleaseHtml
+import hu.microsec.cegbir.kocsis.helper.ReleaseTxt
 import hu.microsec.cegbir.kocsis.helper.Sprint
 import hu.microsec.cegbir.kocsis.helper.Tester
 import org.apache.commons.cli.DefaultParser
@@ -22,14 +23,15 @@ private const val RELEASE = "r"
 open class JiraBuheratorApp(
     val tester: Tester,
     val sprintHelper: Sprint,
-    val release: Release,
+    val releaseTxt: ReleaseTxt,
+    val releaseHtml: ReleaseHtml,
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
         val optionsFunctions = OptionGroup().apply {
-            addOption(Option.builder(MOVE_TO_READY).longOpt("move2ready").desc("move in current sprint to ready").build())
+            addOption(Option.builder(MOVE_TO_READY).longOpt("move2ready").desc("in current sprint moves new issues to ready state").build())
             addOption(Option.builder(CLOSE_REMAINED).longOpt("closeRemained").desc("close done issues remaind in progress").build())
-            addOption(Option.builder(RELEASE).longOpt("release").hasArg().argName("format").desc("report about issues in release status (format: txt, html)").build())
-            addOption(Option.builder("t").longOpt("test").desc("just test").build())
+            addOption(Option.builder(RELEASE).longOpt("release").hasArg().argName("format").desc("generates report about issues in release status (format: txt, html)").build())
+            addOption(Option.builder("t").longOpt("test").desc("just a test").build())
         }
 
         val options = Options().addOptionGroup(optionsFunctions)
@@ -40,10 +42,10 @@ open class JiraBuheratorApp(
                 hasOption(CLOSE_REMAINED) -> sprintHelper.closeRemained() // release
                 hasOption(RELEASE) -> getOptionValue(RELEASE).run {
                     when (this) {
-                        "html" -> release.listHtml()
-                        else -> release.listTxt()
+                        "html" -> releaseHtml
+                        else -> releaseTxt
                     }
-                }
+                }.generate()
 
                 else -> {
                     HelpFormatter().printHelp(this.javaClass.simpleName.substringBefore("$$"), options, true)

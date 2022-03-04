@@ -7,8 +7,8 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 @ConfigurationProperties(prefix = "jira")
 data class JiraProperties(
-    val url: String = "",
-    val personalAccessToken: String = "",
+    var url: String = "",
+    var personalAccessToken: String = "",
 ) {
     init { // @formatter:off
         log.info("Read JIRA configuration parameters:\n" +
