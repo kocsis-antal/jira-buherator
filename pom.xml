@@ -8,6 +8,7 @@
     <properties>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.source>11</maven.compiler.source>
+
         <kotlin.version>1.6.10</kotlin.version>
     </properties>
 
@@ -97,6 +98,21 @@
                         <goals>
                             <goal>test-compile</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <classifier>exec</classifier>
+                </configuration>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <mainClass>hu.microsec.cegbir.kocsis.JiraBuheratorApp</mainClass>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
