@@ -23,7 +23,7 @@ class JiraBuherator(
             logger.info("Can't move [${key}] issue: already in [${to.statusName}] status")
             true
         } else if (status.name != from.statusName) {
-            logger.warn("Can't move [${issue.id}] issue: it's not in ${from.statusName} status (current: ${status.name})")
+            logger.warn("Can't move [${issue.key}] issue: it's not in ${from.statusName} status (current: ${status.name})")
             false
         } else moveIssue(this, to)
     }

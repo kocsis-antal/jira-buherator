@@ -48,7 +48,7 @@ open class JiraBuheratorApp(
                 }.generate()
 
                 else -> {
-                    HelpFormatter().printHelp(this.javaClass.simpleName.substringBefore("$$"), options, true)
+                    HelpFormatter().printHelp(95, this.javaClass.simpleName.substringBefore("$$"), "", options, "", true)
                 }
             }
         }
