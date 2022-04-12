@@ -1,4 +1,4 @@
-package hu.microsec.cegbir.kocsis
+package hu.microsec.cegbir.kocsis.jira
 
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties

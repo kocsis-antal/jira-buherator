@@ -1,7 +1,7 @@
 package hu.microsec.cegbir.kocsis.helper
 
-import hu.microsec.cegbir.kocsis.JiraBuherator
-import hu.microsec.cegbir.kocsis.Statuses
+import hu.microsec.cegbir.kocsis.jira.JiraBuherator
+import hu.microsec.cegbir.kocsis.jira.Statuses
 import org.springframework.stereotype.Service
 
 @Service
@@ -22,7 +22,7 @@ class Sprint(val buherator: JiraBuherator) {
         println("Found ${result.total} issues.")
         result.issues.forEach {
             println("Transferring [${it.key}] from ${it.status.name}")
-            buherator.moveIssue(it, Statuses.IN_PROGRESS, Statuses.DEMO)
+            buherator.moveIssue(it, Statuses.IN_PROGRESS, Statuses.FEEDBACK)
             buherator.moveIssue(it, Statuses.IN_PROGRESS, Statuses.RELEASE)
         }
     }

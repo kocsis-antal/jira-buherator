@@ -1,4 +1,4 @@
-package hu.microsec.cegbir.kocsis
+package hu.microsec.cegbir.kocsis.jira
 
 enum class Statuses(val statusName: String) {
     // issue statuses
@@ -6,10 +6,10 @@ enum class Statuses(val statusName: String) {
     // -- start
     NEW("New"),
     APPROVED("Approved"),
-    READY("Ready"),
+    READY("Estimated"),
     // -- work
     IN_PROGRESS("In Progress"),
-    DEMO("Demo"),
+    FEEDBACK("Feedback"),
     RELEASE("Release"),
     // -- closed
     DONE("Done"),

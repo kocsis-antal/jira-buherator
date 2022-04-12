@@ -1,4 +1,4 @@
-package hu.microsec.cegbir.kocsis
+package hu.microsec.cegbir.kocsis.jira
 
 import com.atlassian.httpclient.api.Request
 import com.atlassian.jira.rest.client.api.AuthenticationHandler

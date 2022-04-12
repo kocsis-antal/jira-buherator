@@ -1,7 +1,7 @@
 package hu.microsec.cegbir.kocsis.helper
 
-import hu.microsec.cegbir.kocsis.JiraBuherator
-import hu.microsec.cegbir.kocsis.Statuses
+import hu.microsec.cegbir.kocsis.jira.JiraBuherator
+import hu.microsec.cegbir.kocsis.jira.Statuses
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 

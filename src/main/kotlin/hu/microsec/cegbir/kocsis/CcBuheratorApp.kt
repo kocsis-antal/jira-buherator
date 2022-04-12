@@ -1,9 +1,11 @@
 package hu.microsec.cegbir.kocsis
 
+import hu.microsec.cegbir.kocsis.gitlab.GitLabProperties
 import hu.microsec.cegbir.kocsis.helper.ReleaseHtml
 import hu.microsec.cegbir.kocsis.helper.ReleaseTxt
 import hu.microsec.cegbir.kocsis.helper.Sprint
 import hu.microsec.cegbir.kocsis.helper.Tester
+import hu.microsec.cegbir.kocsis.jira.JiraProperties
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
 import org.apache.commons.cli.Option
@@ -16,13 +18,15 @@ import org.springframework.boot.runApplication
 
 private const val MOVE_TO_READY = "m"
 private const val CLOSE_REMAINED = "c"
+private const val TASKS = "t"
 private const val RELEASE = "r"
 
-@EnableConfigurationProperties(JiraProperties::class)
+@EnableConfigurationProperties(JiraProperties::class, GitLabProperties::class)
 @SpringBootApplication()
-open class JiraBuheratorApp(
+open class CcBuheratorApp(
     val tester: Tester,
-    val sprintHelper: Sprint,
+    val sprintHelper: Sprint, //    val taskTxt: TaskTxt,
+    //    val taskHtml: TaskHtml,
     val releaseTxt: ReleaseTxt,
     val releaseHtml: ReleaseHtml,
 ) : CommandLineRunner {
@@ -30,8 +34,9 @@ open class JiraBuheratorApp(
         val optionsFunctions = OptionGroup().apply {
             addOption(Option.builder(MOVE_TO_READY).longOpt("move2ready").desc("in current sprint moves new issues to ready state").build())
             addOption(Option.builder(CLOSE_REMAINED).longOpt("closeRemained").desc("close done issues remaind in progress").build())
+            addOption(Option.builder(TASKS).longOpt("release").hasArg().argName("format").desc("generates report about issues in release status (format: txt, html)").build())
             addOption(Option.builder(RELEASE).longOpt("release").hasArg().argName("format").desc("generates report about issues in release status (format: txt, html)").build())
-            addOption(Option.builder("t").longOpt("test").desc("just a test").build())
+            addOption(Option.builder("test").longOpt("test").desc("just a test").build())
         }
 
         val options = Options().addOptionGroup(optionsFunctions)
@@ -40,12 +45,18 @@ open class JiraBuheratorApp(
                 hasOption("t") -> tester.test() // sprint
                 hasOption(MOVE_TO_READY) -> sprintHelper.moveToReady()
                 hasOption(CLOSE_REMAINED) -> sprintHelper.closeRemained() // release
+                //                hasOption(TASKS) -> getOptionValue(TASKS).run {
+                //                    when (this) {
+                //                        "html" -> taskHtml
+                //                        else -> taskTxt
+                //                    }
+                //                }.jiraTasks()
                 hasOption(RELEASE) -> getOptionValue(RELEASE).run {
                     when (this) {
                         "html" -> releaseHtml
                         else -> releaseTxt
                     }
-                }.generate()
+                }.jiraTasks()
 
                 else -> {
                     HelpFormatter().printHelp(95, this.javaClass.simpleName.substringBefore("$$"), "", options, "", true)
@@ -62,5 +73,5 @@ open class JiraBuheratorApp(
 //        }
 
 fun main(args: Array<String>) {
-    runApplication<JiraBuheratorApp>(*args)
+    runApplication<CcBuheratorApp>(*args)
 }
