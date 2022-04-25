@@ -7,7 +7,7 @@ import hu.microsec.cegbir.kocsis.jira.Statuses
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
-abstract class Release(
+abstract class Task(
     val jiraBuherator: JiraBuherator, val gitlabBuherator: GitlabBuherator
 ) {
     fun getIssuesInRelease() = jiraBuherator.select("filter = \"CC projects filter\" AND type in standardIssueTypes() AND status = ${Statuses.RELEASE.statusName}").also { logger.info("Found ${it.total} issues.") }.issues.groupBy { it.project }.toSortedMap({ o1, o2 -> o1.key.compareTo(o2.key) })
@@ -39,20 +39,6 @@ abstract class Release(
         }
     }
 
-    fun releaseNotes() {
-        jiraBuherator.client.projectClient.allProjects.claim().filter { it.name?.startsWith(JiraBuherator.CNY_PREFIX) == true }.forEach {
-            println(printProject(it.name?.removePrefix(JiraBuherator.CNY_PREFIX).orEmpty()))
-
-            jiraBuherator.client.projectClient.getProject(it.key).claim().versions.filter { !it.isReleased }.forEach {
-                println(" - ${it.name}")
-
-                jiraBuherator.select("fixVersion = ${it.id}").issues.forEach {
-                    println(" -- ${it.key} - ${it.summary}")
-                }
-            }
-        }
-    }
-
     abstract fun printProject(name: String): String
 
     abstract fun printToHeader(string: String): String
@@ -68,7 +54,7 @@ abstract class Release(
 }
 
 @Service
-class ReleaseTxt(buherator: JiraBuherator, gitlabBuherator: GitlabBuherator) : Release(buherator, gitlabBuherator) {
+class TaskTxt(buherator: JiraBuherator, gitlabBuherator: GitlabBuherator) : Release(buherator, gitlabBuherator) {
     override fun printProject(name: String) = name
 
     override fun printToHeader(string: String) = "- $string"
@@ -80,7 +66,7 @@ class ReleaseTxt(buherator: JiraBuherator, gitlabBuherator: GitlabBuherator) : R
 }
 
 @Service
-class ReleaseHtml(buherator: JiraBuherator, gitlabBuherator: GitlabBuherator) : Release(buherator, gitlabBuherator) {
+class TaskHtml(buherator: JiraBuherator, gitlabBuherator: GitlabBuherator) : Release(buherator, gitlabBuherator) {
     override fun printProject(name: String) = "<h1>$name</h1>"
 
     override fun printToHeader(string: String) = "<h2>$string</h2>\n<ul>"

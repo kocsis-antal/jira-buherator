@@ -47,6 +47,8 @@ class JiraBuherator(
     fun select(jql: String) = client.searchClient.searchJql(jql).claim()
 
     companion object {
+        const val CNY_PREFIX = "CNY - "
+
         private val logger = LoggerFactory.getLogger(JiraBuherator::class.java)
     }
 }

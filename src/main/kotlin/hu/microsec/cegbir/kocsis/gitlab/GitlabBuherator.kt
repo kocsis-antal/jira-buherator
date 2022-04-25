@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 class GitlabBuherator(properties: GitLabProperties) {
     val gitLabApi = GitLabApi(properties.url, properties.personalAccessToken)
 
-    //    fun getProject(projectName: String) = gitLabApi.projectApi.getProjects(projectName).filter { it.name.equals(projectName, true) }.single()
+    fun getProject(projectName: String) = gitLabApi.projectApi.getProjects(projectName).filter { it.path.equals(projectName, true) }.single()
 
     fun getMergeRequests(id: String) = gitLabApi.mergeRequestApi.getMergeRequests(MergeRequestFilter().apply {
         scope = Constants.MergeRequestScope.ALL

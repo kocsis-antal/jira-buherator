@@ -6,8 +6,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class Tester(val buherator: JiraBuherator) {
-    fun test() {
+class Tester(
+    val buherator: JiraBuherator,
+    val branch: Branch,
+) {
+    fun test2() {
         val key = "HARMASKA-2221"
         val issue = buherator.getIssue(key)
         logger.debug("issue:\n$issue")
@@ -25,6 +28,10 @@ class Tester(val buherator: JiraBuherator) {
         }
 
         buherator.moveIssue(issue, Statuses.TO_DO, Statuses.IN_PROGRESS)
+    }
+
+    fun test() {
+        branch.bla()
     }
 
     companion object {

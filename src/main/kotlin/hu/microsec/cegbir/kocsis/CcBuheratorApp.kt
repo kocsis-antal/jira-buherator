@@ -42,7 +42,7 @@ open class CcBuheratorApp(
         val options = Options().addOptionGroup(optionsFunctions)
         DefaultParser().parse(options, args).run {
             when {
-                hasOption("t") -> tester.test() // sprint
+                hasOption("test") -> tester.test() // sprint
                 hasOption(MOVE_TO_READY) -> sprintHelper.moveToReady()
                 hasOption(CLOSE_REMAINED) -> sprintHelper.closeRemained() // release
                 //                hasOption(TASKS) -> getOptionValue(TASKS).run {
@@ -63,6 +63,21 @@ open class CcBuheratorApp(
                 }
             }
         }
+    }
+
+    companion object {
+        val projectMap = mapOf<String, String>(
+            //            "Cégeljárás mediátor" to "",
+            //            "Céghírnök mediátor" to "",
+            //            "Online céginformáció szolgáltatás" to "",
+            //            "CNY Others" to "",
+            //            "Cégbírósági egyablakos rendszer" to "",
+            "Fizetésképtelenségi Nyilvántartás" to "fk",
+            "Hármaska" to "microsec-cegbir",
+            "Hivatali Kapu letöltő alkalmazás" to "hivatali-kapu-gw",
+            "Informatikai Vizsgálat" to "informatikai-vizsgalat", //            "Ketteske" to "",
+            "KKSZB Gateway" to "kkszb-gateway",
+        )
     }
 }
 
