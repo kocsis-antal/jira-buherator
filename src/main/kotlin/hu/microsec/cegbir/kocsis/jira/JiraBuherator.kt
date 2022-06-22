@@ -2,6 +2,8 @@ package hu.microsec.cegbir.kocsis.jira
 
 import com.atlassian.httpclient.api.Request
 import com.atlassian.jira.rest.client.api.AuthenticationHandler
+import com.atlassian.jira.rest.client.api.IssueRestClient.Expandos
+import com.atlassian.jira.rest.client.api.RestClientException
 import com.atlassian.jira.rest.client.api.domain.Issue
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory
@@ -17,29 +19,38 @@ class JiraBuherator(
     var issueClient = client.issueClient
 
     fun getIssue(key: String) = issueClient.getIssue(key).claim()
+    fun getIssueWithChangelog(key: String) = issueClient.getIssue(key, listOf(Expandos.CHANGELOG)).claim()
 
     fun moveIssue(issue: Issue, from: Statuses, to: Statuses): Boolean = getIssue(issue.key).run {
         if (status.name == to.statusName) {
-            logger.info("Can't move [${key}] issue: already in [${to.statusName}] status")
+            logger.info("Can't move [${key} - ${issue.summary}] issue: already in [${to.statusName}] status")
             true
         } else if (status.name != from.statusName) {
-            logger.warn("Can't move [${issue.key}] issue: it's not in ${from.statusName} status (current: ${status.name})")
+            logger.warn("Can't move [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue: it's not in ${from.statusName} status (current: ${status.name})")
             false
         } else moveIssue(this, to)
     }
 
     fun moveIssue(issue: Issue, to: Statuses): Boolean = if (issue.status.name == to.statusName) {
-        logger.info("Can't move [${issue.key}] issue: already in [${to.statusName}] status")
+        logger.info("Can't move [${issue.key} - ${issue.summary}] issue: already in [${to.statusName}] status")
         true
     } else {
         issueClient.getTransitions(issue.transitionsUri).claim().singleOrNull { transition -> transition.name.equals(to.statusName) }.let {
             if (it == null) {
-                logger.info("On [${issue.key}] issue no transition from [${issue.status.name}] to [${to.statusName}]")
+                logger.info("On [${issue.key} - ${issue.summary}] issue no transition from [${issue.status.name}] to [${to.statusName}]")
                 false
             } else {
-                issueClient.transition(issue, TransitionInput(it.id)).claim()
-                logger.info("Moved [${issue.key}] issue from [${issue.status.name}] to [${to.statusName}]")
-                true
+                try {
+                    issueClient.transition(issue, TransitionInput(it.id)).claim()
+                    logger.info("Moved [${issue.key} - ${issue.summary}] issue from [${issue.status.name}] to [${to.statusName}]")
+                    true
+                } catch (e: RestClientException) {
+                    logger.warn("Error moving [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue from [${issue.status.name}] to [${to.statusName}]: ${e.errorCollections.map { it.errorMessages }}")
+                    false
+                } catch (e: Exception) {
+                    logger.warn("Error moving [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue from [${issue.status.name}] to [${to.statusName}]: ${e.localizedMessage}")
+                    false
+                }
             }
         }
     }

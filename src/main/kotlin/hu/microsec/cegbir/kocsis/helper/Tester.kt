@@ -31,7 +31,7 @@ class Tester(
     }
 
     fun test() {
-        branch.bla()
+        branch.branchInfo()
     }
 
     companion object {

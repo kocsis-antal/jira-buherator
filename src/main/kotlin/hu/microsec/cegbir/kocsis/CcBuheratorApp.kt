@@ -3,6 +3,7 @@ package hu.microsec.cegbir.kocsis
 import hu.microsec.cegbir.kocsis.gitlab.GitLabProperties
 import hu.microsec.cegbir.kocsis.helper.ReleaseHtml
 import hu.microsec.cegbir.kocsis.helper.ReleaseTxt
+import hu.microsec.cegbir.kocsis.helper.Report
 import hu.microsec.cegbir.kocsis.helper.Sprint
 import hu.microsec.cegbir.kocsis.helper.Tester
 import hu.microsec.cegbir.kocsis.jira.JiraProperties
@@ -20,10 +21,12 @@ private const val MOVE_TO_READY = "m"
 private const val CLOSE_REMAINED = "c"
 private const val TASKS = "t"
 private const val RELEASE = "r"
+private const val REPORT_TIME_SPENT = "rts"
 
 @EnableConfigurationProperties(JiraProperties::class, GitLabProperties::class)
 @SpringBootApplication()
 open class CcBuheratorApp(
+    val report: Report,
     val tester: Tester,
     val sprintHelper: Sprint, //    val taskTxt: TaskTxt,
     //    val taskHtml: TaskHtml,
@@ -34,8 +37,9 @@ open class CcBuheratorApp(
         val optionsFunctions = OptionGroup().apply {
             addOption(Option.builder(MOVE_TO_READY).longOpt("move2ready").desc("in current sprint moves new issues to ready state").build())
             addOption(Option.builder(CLOSE_REMAINED).longOpt("closeRemained").desc("close done issues remaind in progress").build())
-            addOption(Option.builder(TASKS).longOpt("release").hasArg().argName("format").desc("generates report about issues in release status (format: txt, html)").build())
+            addOption(Option.builder(TASKS).longOpt("tasks").hasArg().argName("format").desc("generates report about tasks (format: txt, html)").build())
             addOption(Option.builder(RELEASE).longOpt("release").hasArg().argName("format").desc("generates report about issues in release status (format: txt, html)").build())
+            addOption(Option.builder(REPORT_TIME_SPENT).longOpt("reportTimeSpent").hasArg().argName("period").desc("generates report about time spent on issues in period (format: txt, html)").build())
             addOption(Option.builder("test").longOpt("test").desc("just a test").build())
         }
 
@@ -43,6 +47,7 @@ open class CcBuheratorApp(
         DefaultParser().parse(options, args).run {
             when {
                 hasOption("test") -> tester.test() // sprint
+                hasOption(REPORT_TIME_SPENT) -> report.timeSpent(getOptionValue(REPORT_TIME_SPENT))
                 hasOption(MOVE_TO_READY) -> sprintHelper.moveToReady()
                 hasOption(CLOSE_REMAINED) -> sprintHelper.closeRemained() // release
                 //                hasOption(TASKS) -> getOptionValue(TASKS).run {
@@ -67,16 +72,25 @@ open class CcBuheratorApp(
 
     companion object {
         val projectMap = mapOf<String, String>(
-            //            "Cégeljárás mediátor" to "",
-            //            "Céghírnök mediátor" to "",
-            //            "Online céginformáció szolgáltatás" to "",
-            //            "CNY Others" to "",
+            "BRIS Gateway" to "bris-gateway", //            "Cégbíróság" to "*",
             //            "Cégbírósági egyablakos rendszer" to "",
+            "Cégbírósági és cégeljárás statisztika" to "microsec-occrstat", //            "Cégeljárás mediátor" to "",
+            //            "Céghírnök mediátor" to "",
+            //            "Cégközlöny mediátor" to "",
+            //            "Cégnyilvántartási Portál" to "cnyp-*",
             "Fizetésképtelenségi Nyilvántartás" to "fk",
-            "Hármaska" to "microsec-cegbir",
             "Hivatali Kapu letöltő alkalmazás" to "hivatali-kapu-gw",
-            "Informatikai Vizsgálat" to "informatikai-vizsgalat", //            "Ketteske" to "",
-            "KKSZB Gateway" to "kkszb-gateway",
+            "Hármaska" to "microsec-cegbir",
+            "Informatikai Vizsgálat" to "informatikai-vizsgalat",            //            "Ketteske" to "",
+            "Kiadmány generáló alkalmazás" to "microsec-cegrovat-view-generator",
+            "KKSZB Gateway" to "kkszb-gateway",            //            "Központi cégnév nyilvántartás - DBMS" to "",
+            "MQ Series szerver" to "mq7", //            "Online céginformáció szolgáltatás" to "",
+            "Teszt Cég Adatlétrehozó Alkalmazás" to "teszt-cegadat-karbantarto",            //            "VHKIR" to "*vhkir*",
+            //            "ÁFSZ mediátor" to "",
+
+            //            "CNY Inbox" to "",
+            //            "CNY Others" to "",
+            //            "CNY Product Owner Project" to "",
         )
     }
 }
