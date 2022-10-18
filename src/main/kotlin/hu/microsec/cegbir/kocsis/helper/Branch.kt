@@ -6,6 +6,7 @@ import hu.microsec.cegbir.kocsis.gitlab.GitMergeRequestDTO
 import hu.microsec.cegbir.kocsis.gitlab.GitProjectDTO
 import hu.microsec.cegbir.kocsis.gitlab.GitlabBuherator
 import hu.microsec.cegbir.kocsis.jira.JiraBuherator
+import hu.microsec.cegbir.kocsis.jira.JiraBuherator.Companion.CC_PROJECTS_FILTER
 import hu.microsec.cegbir.kocsis.jira.JiraFixVersionDTO
 import hu.microsec.cegbir.kocsis.jira.JiraIssueDTO
 import hu.microsec.cegbir.kocsis.jira.Statuses
@@ -17,7 +18,7 @@ class Branch(
     val jiraBuherator: JiraBuherator,
     val gitlabBuherator: GitlabBuherator,
 ) {
-    fun getIssuesActive() = jiraBuherator.select("""filter = "CC projects filter" AND type in standardIssueTypes() AND status in ("${Statuses.IN_PROGRESS.statusName}", "${Statuses.RELEASE.statusName}") """) //
+    fun getIssuesActive() = jiraBuherator.select("""$CC_PROJECTS_FILTER AND type in standardIssueTypes() AND status in ("${Statuses.IN_PROGRESS.statusName}", "${Statuses.RELEASE.statusName}") """) //
         .also { logger.info("Found ${it.total} active issues.") }.issues.groupBy { it.project }.toSortedMap({ o1, o2 -> o1.key.compareTo(o2.key) })
 
     fun branchInfo() {
@@ -98,7 +99,7 @@ data class BranchIssueDTO(
         gitBranches.isEmpty() && gitMergeRequests.isEmpty() -> "nem található GIT-ben, JIRA-ban:\n${jiraBranches.joinToString(separator = "\n", prefix = "$subPrefix - ", transform = JiraFixVersionDTO::name)}"
 
         // sehol sincs
-        jiraBranches.isEmpty() && gitBranches.isEmpty() && gitMergeRequests.isEmpty() -> if (jiraIssueDTO.status == Statuses.RELEASE.statusName) "???? (sehol nem található)" else "OK (folyamatban)"
+        jiraBranches.isEmpty() && (gitBranches.isEmpty() && gitMergeRequests.isEmpty()) -> if (jiraIssueDTO.status == Statuses.RELEASE.statusName) "???? (sehol nem található)" else "OK (folyamatban)"
 
         // JIRA nincs, de GIT van
         jiraBranches.isEmpty() && gitMergeRequests.isNotEmpty() -> "JIRA verzió hiányzik (GIT MR ${if (gitMergeRequestsStatus == "merged") "merged => ${gitMergeRequests.map { it.targetKey }.distinct().joinToString()}" else gitMergeRequests.joinToString { it.key }})"

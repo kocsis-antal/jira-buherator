@@ -42,7 +42,7 @@ class Report(val buherator: JiraBuherator) {
         """.trimIndent()
         )
 
-        val epics = buherator.select("type = Epic AND project = \"CNY Product Owner Project\" AND Period = \"$period\"")
+        val epics = buherator.select("""type = Epic AND project = "CNY Product Owner Project" AND Period = "$period"""")
         val epicsWork = mutableMapOf<Issue, Int>()
 
         var sumEpic = 0
@@ -52,7 +52,7 @@ class Report(val buherator: JiraBuherator) {
             when (it.status.name) {
                 Statuses.NEW.statusName, Statuses.APPROVED.statusName -> println("Nem kezdődött el.")
                 else -> {
-                    val epicIssues = buherator.select("\"Epic Link\" = ${it.key}")
+                    val epicIssues = buherator.select(""""Epic Link" = ${it.key}""")
                     println("Státusz: <i>${it.status.name}</i>, feladat: ${epicIssues.total} db (ebből befejezve: ${epicIssues.issues.filter { it.status.name == Statuses.DONE.statusName }.size} db)")
 
                     if (epicIssues.issues.count() > 0) {

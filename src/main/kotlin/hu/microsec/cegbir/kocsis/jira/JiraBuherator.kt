@@ -26,18 +26,18 @@ class JiraBuherator(
             logger.info("Can't move [${key} - ${issue.summary}] issue: already in [${to.statusName}] status")
             true
         } else if (status.name != from.statusName) {
-            logger.warn("Can't move [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue: it's not in ${from.statusName} status (current: ${status.name})")
+            logger.info("Can't move [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue: it's not in ${from.statusName} status (current: ${status.name})")
             false
         } else moveIssue(this, to)
     }
 
     fun moveIssue(issue: Issue, to: Statuses): Boolean = if (issue.status.name == to.statusName) {
-        logger.info("Can't move [${issue.key} - ${issue.summary}] issue: already in [${to.statusName}] status")
+        logger.debug("Can't move [${issue.key} - ${issue.summary}] issue: already in [${to.statusName}] status")
         true
     } else {
         issueClient.getTransitions(issue.transitionsUri).claim().singleOrNull { transition -> transition.name.equals(to.statusName) }.let {
             if (it == null) {
-                logger.info("On [${issue.key} - ${issue.summary}] issue no transition from [${issue.status.name}] to [${to.statusName}]")
+                logger.debug("On [${issue.key} - ${issue.summary}] issue no transition from [${issue.status.name}] to [${to.statusName}]")
                 false
             } else {
                 try {
@@ -58,6 +58,7 @@ class JiraBuherator(
     fun select(jql: String) = client.searchClient.searchJql(jql).claim()
 
     companion object {
+        const val CC_PROJECTS_FILTER = """filter = "CC projects filter""""
         const val CNY_PREFIX = "CNY - "
 
         private val logger = LoggerFactory.getLogger(JiraBuherator::class.java)

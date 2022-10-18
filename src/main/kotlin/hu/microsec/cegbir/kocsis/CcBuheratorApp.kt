@@ -21,6 +21,7 @@ private const val MOVE_TO_READY = "m"
 private const val CLOSE_REMAINED = "c"
 private const val TASKS = "t"
 private const val RELEASE = "r"
+private const val ONLY_DEVELOPERS = "d"
 private const val REPORT_TIME_SPENT = "rts"
 
 @EnableConfigurationProperties(JiraProperties::class, GitLabProperties::class)
@@ -34,16 +35,24 @@ open class CcBuheratorApp(
     val releaseHtml: ReleaseHtml,
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
-        val optionsFunctions = OptionGroup().apply {
-            addOption(Option.builder(MOVE_TO_READY).longOpt("move2ready").desc("in current sprint moves new issues to ready state").build())
-            addOption(Option.builder(CLOSE_REMAINED).longOpt("closeRemained").desc("close done issues remaind in progress").build())
-            addOption(Option.builder(TASKS).longOpt("tasks").hasArg().argName("format").desc("generates report about tasks (format: txt, html)").build())
-            addOption(Option.builder(RELEASE).longOpt("release").hasArg().argName("format").desc("generates report about issues in release status (format: txt, html)").build())
-            addOption(Option.builder(REPORT_TIME_SPENT).longOpt("reportTimeSpent").hasArg().argName("period").desc("generates report about time spent on issues in period (format: txt, html)").build())
-            addOption(Option.builder("test").longOpt("test").desc("just a test").build())
+        val options = Options().apply {
+            addOptionGroup(OptionGroup().apply {
+                addOption(Option.builder(MOVE_TO_READY).longOpt("move2ready").desc("in current sprint moves new issues to ready state").build())
+                addOption(Option.builder(CLOSE_REMAINED).longOpt("closeRemained").desc("close done issues remaind in progress").build())
+                addOption(
+                    Option.builder(TASKS).longOpt("tasks").hasArg().argName("format").desc("generates report about tasks (format: txt, html)").build()
+                )
+                addOption(
+                    Option.builder(RELEASE).longOpt("release").hasArg().argName("format").desc("generates report about issues in release status (format: txt, html)").build()
+                )
+                addOption(
+                    Option.builder(REPORT_TIME_SPENT).longOpt("reportTimeSpent").hasArg().argName("period").desc("generates report about time spent on issues in period (format: txt, html)").build()
+                )
+                addOption(Option.builder("test").longOpt("test").desc("just a test").build())
+            })
+            addOption(Option.builder(ONLY_DEVELOPERS).longOpt("developers").desc("show information only about developers").build())
         }
 
-        val options = Options().addOptionGroup(optionsFunctions)
         DefaultParser().parse(options, args).run {
             when {
                 hasOption("test") -> tester.test() // sprint
@@ -61,7 +70,7 @@ open class CcBuheratorApp(
                         "html" -> releaseHtml
                         else -> releaseTxt
                     }
-                }.jiraTasks()
+                }.jiraTasks(hasOption(ONLY_DEVELOPERS))
 
                 else -> {
                     HelpFormatter().printHelp(95, this.javaClass.simpleName.substringBefore("$$"), "", options, "", true)
