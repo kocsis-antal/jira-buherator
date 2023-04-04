@@ -37,7 +37,7 @@ class JiraBuherator(
     } else {
         issueClient.getTransitions(issue.transitionsUri).claim().singleOrNull { transition -> transition.name.equals(to.statusName) }.let {
             if (it == null) {
-                logger.debug("On [${issue.key} - ${issue.summary}] issue no transition from [${issue.status.name}] to [${to.statusName}]")
+                logger.debug("On [${issue.key} - ${issue.summary}](${issue.assignee?.name}) issue no transition from [${issue.status.name}] to [${to.statusName}]")
                 false
             } else {
                 try {
@@ -45,7 +45,7 @@ class JiraBuherator(
                     logger.info("Moved [${issue.key} - ${issue.summary}] issue from [${issue.status.name}] to [${to.statusName}]")
                     true
                 } catch (e: RestClientException) {
-                    logger.warn("Error moving [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue from [${issue.status.name}] to [${to.statusName}]: ${e.errorCollections.map { it.errorMessages }}")
+                    logger.warn("Error moving [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue from [${issue.status.name}] to [${to.statusName}]: ${e.errorCollections.map { it.errors }}")
                     false
                 } catch (e: Exception) {
                     logger.warn("Error moving [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue from [${issue.status.name}] to [${to.statusName}]: ${e.localizedMessage}")
@@ -60,6 +60,7 @@ class JiraBuherator(
     companion object {
         const val CC_PROJECTS_FILTER = """filter = "CC projects filter""""
         const val CNY_PREFIX = "CNY - "
+        val DALX_PROJECTS = listOf("KETTESKE")
 
         private val logger = LoggerFactory.getLogger(JiraBuherator::class.java)
     }
