@@ -4,7 +4,10 @@ import com.atlassian.httpclient.api.Request
 import com.atlassian.jira.rest.client.api.AuthenticationHandler
 import com.atlassian.jira.rest.client.api.IssueRestClient.Expandos
 import com.atlassian.jira.rest.client.api.RestClientException
+import com.atlassian.jira.rest.client.api.domain.BasicIssue
 import com.atlassian.jira.rest.client.api.domain.Issue
+import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder
+import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory
 import org.slf4j.LoggerFactory
@@ -20,6 +23,53 @@ class JiraBuherator(
 
     fun getIssue(key: String) = issueClient.getIssue(key).claim()
     fun getIssueWithChangelog(key: String) = issueClient.getIssue(key, listOf(Expandos.CHANGELOG)).claim()
+
+    fun linkParent(parent: String, child: String) {
+        logger.info("Issue [$parent] is parent of [$child]")
+        issueClient.linkIssue(LinkIssuesInput(child, parent, "Hierarchy [Gantt]")).claim()
+    }
+
+    fun linkBlock(blocker: BasicIssue, blocked: BasicIssue) {
+        linkBlock(blocker.key, blocked.key)
+    }
+
+    fun linkBlock(blocker: String, blocked: String) {
+        logger.info("Issue [$blocker] is blocking [$blocked]")
+        issueClient.linkIssue(LinkIssuesInput(blocker, blocked, "Blocks")).claim()
+    }
+
+    fun createMainTaskWithParent(parent: String, project: String, summary: String, description: String): BasicIssue {
+        val newIssue = createMainTask(project, summary, description)
+        linkParent(parent, newIssue.key)
+
+        return newIssue
+    }
+
+    fun createReleaseTsask(blocker: BasicIssue, project: String): BasicIssue = createReleaseTsask(blocker.key, project)
+
+    fun createReleaseTsask(blocker: String, project: String): BasicIssue {
+        val issue = createIssue(project, "Release Task", "$project  csomag élesítés", "")
+        linkBlock(blocker, issue.key)
+
+        return issue
+    }
+
+    fun createMainTask(project: String, summary: String, description: String): BasicIssue = createIssue(project, "Main Task", summary, description)
+    fun createIssue(project: String, issueTypeName: String, summary: String, description: String): BasicIssue {
+        val issueType = client.metadataClient.issueTypes.get().first { it.name == issueTypeName } ?: throw RuntimeException()
+
+        val issue = IssueInputBuilder().apply {
+            setProjectKey(project)
+            setIssueType(issueType)
+            setSummary(summary)
+            setDescription(description)
+        }.build()
+
+        val newIssue = issueClient.createIssue(issue).claim() ?: throw RuntimeException("Issue creation error")
+
+        logger.info("Issue [$newIssue.key] created successfully")
+        return newIssue
+    }
 
     fun moveIssue(issue: Issue, from: Statuses, to: Statuses): Boolean = getIssue(issue.key).run {
         if (status.name == to.statusName) {

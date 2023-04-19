@@ -7,12 +7,12 @@ import org.springframework.stereotype.Service
 
 @Service
 class Tester(
-    val buherator: JiraBuherator,
+    val jiraBuherator: JiraBuherator,
     val branch: Branch,
 ) {
     fun test2() {
         val key = "HARMASKA-2221"
-        val issue = buherator.getIssue(key)
+        val issue = jiraBuherator.getIssue(key)
         logger.debug("issue:\n$issue")
 
         val issueType = issue.issueType
@@ -21,17 +21,26 @@ class Tester(
         val status = issue.status
         logger.info("status: [${status.name}(${status.statusCategory.name})] - ${status.description}")
 
-        val transitions = buherator.issueClient.getTransitions(issue.transitionsUri).claim()
+        val transitions = jiraBuherator.issueClient.getTransitions(issue.transitionsUri).claim()
         logger.info("transitions(${transitions.count()}): [${status.name}] -> ...")
         transitions.forEach {
             logger.info("transition: [${status.name}] -> [${it.name}]")
         }
 
-        buherator.moveIssue(issue, Statuses.TO_DO, Statuses.IN_PROGRESS)
+        jiraBuherator.moveIssue(issue, Statuses.TO_DO, Statuses.IN_PROGRESS)
+    }
+
+    fun test3() {
+        branch.branchInfo()
+    }
+
+    fun test4() {
+        jiraBuherator.createMainTaskWithParent("HARMASKA-3324", "HARMASKA", "Teszt cím", "buherátor teszt\npróba")
+        jiraBuherator.linkBlock("HARMASKA-3324", "HARMASKA-3330")
     }
 
     fun test() {
-        branch.branchInfo()
+        jiraBuherator.getIssue("CNYOTHERS-484")
     }
 
     companion object {

@@ -23,6 +23,7 @@ private const val TASKS = "t"
 private const val RELEASE = "r"
 private const val ONLY_DEVELOPERS = "d"
 private const val REPORT_TIME_SPENT = "rts"
+private const val ROVAT = "rovat"
 
 @EnableConfigurationProperties(JiraProperties::class, GitLabProperties::class)
 @SpringBootApplication()
@@ -48,6 +49,7 @@ open class CcBuheratorApp(
                 addOption(
                     Option.builder(REPORT_TIME_SPENT).longOpt("reportTimeSpent").hasArg().argName("period").desc("generates report about time spent on issues in period (format: txt, html)").build()
                 )
+                addOption(Option.builder(ROVAT).hasArg().argName("parent id").desc("create rovat task hierarchy").build())
                 addOption(Option.builder("test").longOpt("test").desc("just a test").build())
             })
             addOption(Option.builder(ONLY_DEVELOPERS).longOpt("developers").desc("show information only about developers").build())
@@ -71,6 +73,8 @@ open class CcBuheratorApp(
                         else -> releaseTxt
                     }
                 }.jiraTasks(hasOption(ONLY_DEVELOPERS))
+
+                hasOption(ROVAT) -> sprintHelper.createRovatIssues(getOptionValue(ROVAT))
 
                 else -> {
                     HelpFormatter().printHelp(95, this.javaClass.simpleName.substringBefore("$$"), "", options, "", true)
