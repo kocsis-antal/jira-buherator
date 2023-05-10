@@ -13,22 +13,23 @@ import java.io.PrintStream
 @Service
 class Report(val buherator: JiraBuherator) {
     fun timeSpent(period: String) {
-        val o = PrintStream(File("$period.html"))
+        val o = PrintStream(File("${period.replace(Regex(".+\"(.+)\""), "$1")}.html"))
         val console = System.out
         System.setOut(o)
 
         println(
             """
             <head>
-            <style>
-            table, th, td {
-              border: 1px solid black;
-              border-collapse: collapse;
-            }
-            th, td {
-              padding: 5px;
-            }
-            </style>
+                <meta charset="UTF-8">
+                <style>
+                table, th, td {
+                  border: 1px solid black;
+                  border-collapse: collapse;
+                }
+                th, td {
+                  padding: 5px;
+                }
+                </style>
             </head>
             <body>
             <h1>$period</h1>
@@ -42,7 +43,7 @@ class Report(val buherator: JiraBuherator) {
         """.trimIndent()
         )
 
-        val epics = buherator.select("""type = Epic AND project = "CNY Product Owner Project" AND Period = "$period"""")
+        val epics = buherator.select("""type = Epic AND project = "CNY Product Owner Project" AND $period""")
         val epicsWork = mutableMapOf<Issue, Int>()
 
         var sumEpic = 0
@@ -112,6 +113,7 @@ class Report(val buherator: JiraBuherator) {
 
         println("<h3>Ráfordított munka</h3>")
         println("<b>összes idő: ${sumEpic / 8} embernap</b> ($sumEpic emberóra)<br>")
+        println("csapatra vetítve (4 ember esetén): ${sumEpic / 8 / 4} embernap/ember (ez alapján ${sumEpic / 8 / 4 / 5} hét munka)<br>")
         println("csapatra vetítve (5 ember esetén): ${sumEpic / 8 / 5} embernap/ember (ez alapján ${sumEpic / 8 / 5 / 5} hét munka)<br>")
         println("csapatra vetítve (6 ember esetén): ${sumEpic / 8 / 6} embernap/ember (ez alapján ${sumEpic / 8 / 6 / 5} hét munka)<br>")
 

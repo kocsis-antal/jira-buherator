@@ -58,38 +58,123 @@ class Sprint(val jiraBuherator: JiraBuherator) {
         val parentIssue = jiraBuherator.getIssue(parent)
 
         // java
-        val xsd = jiraBuherator.createMainTaskWithParent(parent, "CEGELJARAS", "${parentIssue.summary} - nyomtatvány", "nyomtatvány XSD és XSLT kialakítása\nXSD-ből DTO-k kialakítása")
+        val xsd = jiraBuherator.createMainTaskWithParent(
+            parent, "CEGELJARAS", "${parentIssue.summary} - nyomtatvány", """
+            h2.Feladatok
+            * nyomtatvány XSD és XSLT kialakítása
+            * XSD-ből DTO-k kialakítása
+            """.trimIndent()
+        )
 
-        val portal = jiraBuherator.createMainTaskWithParent(parent, "CEGPORTAL", "${parentIssue.summary} - cégportál", "nyomtatvány XSD linkek frissítése")
+        val portal = jiraBuherator.createMainTaskWithParent(
+            parent, "CEGPORTAL", "${parentIssue.summary} - cégportál", """
+            h2.Feladatok
+            * nyomtatvány XSD linkek frissítése
+            """.trimIndent()
+        )
         val portalElesites = jiraBuherator.createReleaseTsask(portal, "CEGPORTAL")
         jiraBuherator.linkBlock(xsd, portal)
 
-        val beadvany = jiraBuherator.createMainTaskWithParent(parent, "CEGELJARAS", "${parentIssue.summary} - beadvány", "sémaspecifikus DTO-k változásának átvezetése a közös DTO-kba")
+        val beadvany = jiraBuherator.createMainTaskWithParent(
+            parent, "CEGELJARAS", "${parentIssue.summary} - beadvány", """
+            h2.Feladatok
+            * sémaspecifikus DTO-k változásának átvezetése a közös DTO-kba
+            """.trimIndent()
+        )
         jiraBuherator.linkBlock(xsd, beadvany)
 
-        val infovizsg = jiraBuherator.createMainTaskWithParent(parent, "INFOVIZSG", "${parentIssue.summary} - infóvizsgálat", "új ellenőrzések kialakítása\n" + "meglévő ellenőrzések módosítása\n" + "új sémák elfogadása")
+        val infovizsg = jiraBuherator.createMainTaskWithParent(
+            parent, "INFOVIZSG", "${parentIssue.summary} - infóvizsgálat", """
+            h2.Feladatok
+            * új ellenőrzések kialakítása
+            * meglévő ellenőrzések módosítása
+            * új sémák elfogadása
+            """.trimIndent()
+        )
         val infovizsgElesites = jiraBuherator.createReleaseTsask(infovizsg, "INFOVIZSG")
         jiraBuherator.linkBlock(beadvany, infovizsg)
 
-        val kiadmany = jiraBuherator.createMainTaskWithParent(parent, "KIADMANY", "${parentIssue.summary} - kiadmány", "DTO-k módosítása\n" + "végzéstörzsek kialakítása")
+        val kiadmany = jiraBuherator.createMainTaskWithParent(
+            parent, "KIADMANY", "${parentIssue.summary} - kiadmány", """
+            h2.Feladatok
+            * DTO-k módosítása
+            * végzéstörzsek kialakítása
+            """.trimIndent()
+        )
         jiraBuherator.linkBlock(beadvany, kiadmany)
 
-        val cet = jiraBuherator.createMainTaskWithParent(parent, "HARMASKA", "${parentIssue.summary} - CET", "SQL séma módosítása\n" + "adatbáziskezelő réteg (entity, DAO)\n" + "komponensek frissítése\n" + "CgRovatTipus\n" + "végzéstörzs - RovatMapper")
+        val cet = jiraBuherator.createMainTaskWithParent(
+            parent, "HARMASKA", "${parentIssue.summary} - CET", """
+            h2.Feladatok
+            * SQL séma módosítása
+            * adatbáziskezelő réteg (entity, DAO)
+            * komponensek frissítése
+            * CgRovatTipus
+            * végzéstörzs - RovatMapper
+            """.trimIndent()
+        )
         val cetElesites = jiraBuherator.createReleaseTsask(cet, "HARMASKA")
         jiraBuherator.linkBlock(beadvany, cet)
 
-        val bris = jiraBuherator.createMainTaskWithParent(parent, "BRIS", "${parentIssue.summary} - BRIS", "DTO-k módosítása\n" + "üzenetek kialakítása")
+        val bris = jiraBuherator.createMainTaskWithParent(
+            parent, "BRIS", "${parentIssue.summary} - BRIS", """
+            h2.Feladatok
+            * DTO-k módosítása
+            * üzenetek kialakítása
+            """.trimMargin()
+        )
         val brisElesites = jiraBuherator.createReleaseTsask(cet, "BRIS")
         jiraBuherator.linkBlock(cet, bris)
 
         // dalx
-        jiraBuherator.createMainTaskWithParent(parent, "EGYABLAK", "${parentIssue.summary} - egyablak", "adatigény modellek")
-        jiraBuherator.createMainTaskWithParent(parent, "CEGELJARAS", "${parentIssue.summary} - cegeljaras", "séma")
-        jiraBuherator.createMainTaskWithParent(parent, "CEGHIRNOK", "${parentIssue.summary} - ceghirnok", "adatigény modellek")
-        jiraBuherator.createMainTaskWithParent(parent, "KETTESKE", "${parentIssue.summary} - ketteske", "sql-ek\n" + "szerkesztő felület\n" + "előszerkesztés	áttétel\n" + "adatigény modellek")
-        jiraBuherator.createMainTaskWithParent(parent, "CEGKOZPONT", "${parentIssue.summary} - cegkozpont", "sql-ek")
-        jiraBuherator.createMainTaskWithParent(parent, "CEGINFO", "${parentIssue.summary} - ceginfo", "html megjelenítő\n" + "xml megjelenítő\n" + "fordítások")
-        jiraBuherator.createMainTaskWithParent(parent, "AFSZ", "${parentIssue.summary} - afsz", "sql-ek\n" + "html megjelenítő")
+        jiraBuherator.createMainTaskWithParent(
+            parent, "EGYABLAK", "${parentIssue.summary} - egyablak", """
+            h2.Feladatok
+            * adatigény modellek
+            """.trimIndent()
+        )
+        jiraBuherator.createMainTaskWithParent(
+            parent, "CEGELJARAS", "${parentIssue.summary} - cegeljaras", """
+            h2.Feladatok
+            * séma
+            """.trimIndent()
+        )
+        jiraBuherator.createMainTaskWithParent(
+            parent, "CEGHIRNOK", "${parentIssue.summary} - ceghirnok", """
+            h2.Feladatok
+            * adatigény modellek
+            """.trimIndent()
+        )
+        jiraBuherator.createMainTaskWithParent(
+            parent, "KETTESKE", "${parentIssue.summary} - ketteske", """
+            h2.Feladatok
+            * sql-ek
+            * szerkesztő felület
+            * előszerkesztés áttétel
+            * adatigény modellek
+            """.trimIndent()
+        )
+        jiraBuherator.createMainTaskWithParent(
+            parent, "CEGKOZPONT", "${parentIssue.summary} - cegkozpont", """
+            h2.Feladatok
+            * sql-ek
+            """.trimIndent()
+        )
+        jiraBuherator.createMainTaskWithParent(
+            parent, "CEGINFO", "${parentIssue.summary} - ceginfo", """
+            h2.Feladatok
+            * html megjelenítő
+            * xml megjelenítő
+            * fordítások
+           """.trimIndent()
+        )
+        jiraBuherator.createMainTaskWithParent(
+            parent, "AFSZ", "${parentIssue.summary} - afsz", """
+            h2.Feladatok
+            * sql-ek
+            * html megjelenítő
+            """.trimIndent()
+        )
     }
 
     companion object {
