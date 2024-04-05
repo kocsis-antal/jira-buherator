@@ -26,7 +26,7 @@ class JiraBuherator(
 
     fun linkParent(parent: String, child: String) {
         logger.info("Issue [$parent] is parent of [$child]")
-        issueClient.linkIssue(LinkIssuesInput(child, parent, "Hierarchy [Gantt]")).claim()
+        issueClient.linkIssue(LinkIssuesInput(parent, child, "Issue Split")).claim()
     }
 
     fun linkBlock(blocker: BasicIssue, blocked: BasicIssue) {

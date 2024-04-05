@@ -6,16 +6,13 @@
     <version>0.1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.source>11</maven.compiler.source>
-
-        <kotlin.version>1.6.20</kotlin.version>
+        <kotlin.version>1.9.23</kotlin.version>
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.5</version>
+        <version>3.2.3</version>
     </parent>
 
     <dependencies>
@@ -36,35 +33,21 @@
             <version>1.5.0</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.atlassian.jira/jira-rest-java-client-core -->
+        <!-- JIRA -->
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-rest-java-client-core</artifactId>
             <version>5.2.2</version>
-            <exclusions>
-                <exclusion>
-                    <!--                    javax.ws.rs:jsr311-api:jar:1.1.1:compile-->
-                    <groupId>javax.ws.rs</groupId>
-                    <artifactId>jsr311-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.jira</groupId>
-            <artifactId>jira-rest-java-client-app</artifactId>
-            <version>5.2.2</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>io.atlassian.fugue</groupId>
+            <!--            <groupId>com.atlassian.fugue</groupId>-->
+            <artifactId>fugue</artifactId>
+            <version>5.0.0</version>
+            <scope>runtime</scope>
         </dependency>
 
+        <!-- Kotlin -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
@@ -77,18 +60,14 @@
             <scope>test</scope>
         </dependency>
 
-        <!--        GitLab-->
+        <!-- GitLab-->
         <dependency>
             <groupId>org.gitlab4j</groupId>
             <artifactId>gitlab4j-api</artifactId>
-            <version>4.19.0</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.1.1</version>
+            <version>6.0.0-rc.4</version>
         </dependency>
     </dependencies>
+
     <repositories>
         <repository>
             <id>atlassian-public</id>

@@ -32,7 +32,7 @@ class GitlabBuherator(properties: GitLabProperties) {
 
     private val releaseVersion = Regex("(\\d+)\\.(\\d+)\\.(\\d+)")
 
-    private fun printMergeRequest(entry: Map.Entry<Int, List<MergeRequest>>) {
+    private fun printMergeRequest(entry: Map.Entry<Long, List<MergeRequest>>) {
         println("------------------------------------------------------------------")
         println(">>> ${gitLabApi.projectApi.getProject(entry.key).name}")
 
@@ -65,7 +65,6 @@ class GitlabBuherator(properties: GitLabProperties) {
         // @formatter:on
     }
 
-    //
     //    fun test() { // Create a GitLabApi instance to communicate with your GitLab server
     //        // Create a GitLabApi instance to communicate with your GitLab server
     //        val gitLabApi = GitLabApi(properties.url, properties.personalAccessToken)

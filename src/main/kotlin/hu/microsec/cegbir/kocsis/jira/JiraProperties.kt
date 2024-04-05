@@ -2,9 +2,7 @@ package hu.microsec.cegbir.kocsis.jira
 
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
 
-@ConstructorBinding
 @ConfigurationProperties(prefix = "jira")
 data class JiraProperties(
     var url: String = "",

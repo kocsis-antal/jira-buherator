@@ -38,7 +38,7 @@ class Sprint(val jiraBuherator: JiraBuherator) {
     }
 
     fun closeRemained() {
-        val result = jiraBuherator.select("""$CC_PROJECTS_FILTER AND type in standardIssueTypes() AND status = "${Statuses.IN_PROGRESS.statusName}" AND issuefunction in hasSubtasks() AND NOT issuefunction in parentsOf("status != ${Statuses.DONE.statusName}")""")
+        val result = jiraBuherator.select("""$CC_PROJECTS_FILTER AND project != FKCONNECT AND type in standardIssueTypes() AND status = "${Statuses.IN_PROGRESS.statusName}" AND issuefunction in hasSubtasks() AND NOT issuefunction in parentsOf("status != ${Statuses.DONE.statusName}")""")
         println("Found ${result.total} issues.")
         result.issues.forEach {
             println("Transferring [${it.key}] from ${it.status.name}")

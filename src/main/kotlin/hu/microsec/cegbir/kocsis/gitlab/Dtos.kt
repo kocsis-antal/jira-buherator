@@ -4,7 +4,7 @@ import org.gitlab4j.api.models.Branch
 import org.gitlab4j.api.models.MergeRequest
 
 data class GitProjectDTO(
-    val key: Int,
+    val key: Long,
     var branches: List<GitBranchDTO> = emptyList(),
     var mergeRequests: List<GitMergeRequestDTO> = emptyList(),
 ) {
