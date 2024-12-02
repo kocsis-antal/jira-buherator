@@ -1,56 +1,75 @@
 package hu.microsec.cegbir.kocsis.helper
 
+import com.atlassian.jira.rest.client.api.domain.Issue
 import hu.microsec.cegbir.kocsis.jira.JiraBuherator
 import hu.microsec.cegbir.kocsis.jira.JiraBuherator.Companion.CC_PROJECTS_FILTER
 import hu.microsec.cegbir.kocsis.jira.JiraBuherator.Companion.DALX_PROJECTS
 import hu.microsec.cegbir.kocsis.jira.Statuses
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class Sprint(val jiraBuherator: JiraBuherator) {
-    fun moveToReady() {
+    fun moveToReady(): SprintResult {
         val toTranslate = arrayOf(Statuses.NEW.statusName, Statuses.APPROVED.statusName)
         val result = jiraBuherator.select("""filter = "CC projects issues in open sprint" AND status in (${toTranslate.joinToString()})""")
-        println("Found ${result.total} issues.")
-        result.issues.filter { toTranslate.contains(it.status.name) }.forEach {
-            println("Transferring [${it.key}] from ${it.status.name}")
-            jiraBuherator.moveIssue(it, Statuses.NEW, Statuses.APPROVED)
-            if (jiraBuherator.moveIssue(it, Statuses.APPROVED, Statuses.READY)) {
-                logger.info("[${it.key}] moved to ${Statuses.READY}")
-                println("[${it.key}] moved to ${Statuses.READY}")
-            } else logger.warn("Can't move [${it.key}] (${it.status.name})")
+        logger.debug("Found ${result.total} issues.")
+
+        return SprintResult().apply {
+            result.issues.filter { toTranslate.contains(it.status.name) }.forEach {
+                logger.debug("Transferring [${it.key}] from ${it.status.name}")
+                jiraBuherator.moveIssue(it, Statuses.NEW, Statuses.APPROVED)
+                val error = jiraBuherator.moveIssue(it, Statuses.APPROVED, Statuses.READY)
+                if (error == null) {
+                    logger.info("[${it.key}] moved to ${Statuses.READY}")
+                    logger.info("[${it.key}] moved to ${Statuses.READY}")
+                    successfull += it
+                } else {
+                    logger.warn("Can't move [${it.key}] (${it.status.name})")
+                    failed += Pair(it, error)
+                }
+            }
         }
     }
 
     fun moveEpics() {
         val toTranslate = arrayOf(Statuses.NEW.statusName, Statuses.APPROVED.statusName)
         val result = jiraBuherator.select("""filter = "CC projects issues in open sprint" AND status in (${toTranslate.joinToString()})""")
-        println("Found ${result.total} issues.")
+        logger.debug("Found ${result.total} issues.")
         result.issues.filter { toTranslate.contains(it.status.name) }.forEach {
-            println("Transferring [${it.key}] from ${it.status.name}")
+            logger.debug("Transferring [${it.key}] from ${it.status.name}")
             jiraBuherator.moveIssue(it, Statuses.NEW, Statuses.APPROVED)
-            if (jiraBuherator.moveIssue(it, Statuses.APPROVED, Statuses.READY)) {
+            val error = jiraBuherator.moveIssue(it, Statuses.APPROVED, Statuses.READY)
+            if (error == null) {
                 logger.info("[${it.key}] moved to ${Statuses.READY}")
-                println("[${it.key}] moved to ${Statuses.READY}")
-            } else logger.warn("Can't move [${it.key}] (${it.status.name})")
+                logger.info("[${it.key}] moved to ${Statuses.READY}")
+            } else logger.warn("Can't move [${it.key}] (${it.status.name}): $error")
         }
     }
 
-    fun closeRemained() {
+    fun closeRemained(): SprintResult {
         val result = jiraBuherator.select("""$CC_PROJECTS_FILTER AND project != FKCONNECT AND type in standardIssueTypes() AND status = "${Statuses.IN_PROGRESS.statusName}" AND issuefunction in hasSubtasks() AND NOT issuefunction in parentsOf("status != ${Statuses.DONE.statusName}")""")
-        println("Found ${result.total} issues.")
-        result.issues.forEach {
-            println("Transferring [${it.key}] from ${it.status.name}")
+        logger.debug("Found ${result.total} issues.")
 
-            if (DALX_PROJECTS.contains(it.project.key) && (it.fixVersions?.count() ?: 0) == 0) {
-                logger.info("[${it.key}] adding fix version development") // TODO
+        return SprintResult().apply {
+            result.issues.forEach {
+                logger.debug("Transferring [${it.key}] from ${it.status.name}")
+
+                if (DALX_PROJECTS.contains(it.project.key) && (it.fixVersions?.count() ?: 0) == 0) {
+                    logger.info("[${it.key}] adding fix version development") // TODO
+                }
+
+                val error1 = jiraBuherator.moveIssue(it, Statuses.IN_PROGRESS, Statuses.FEEDBACK)
+                val error2 = jiraBuherator.moveIssue(it, Statuses.IN_PROGRESS, Statuses.RELEASE)
+                if (error1 == null || error2 == null) {
+                    logger.info("[${it.key}] closed")
+                    successfull += it
+                } else {
+                    logger.warn("Can't close [${it.key}](${it.assignee?.name}) (${it.status.name})")
+                    failed += Pair(it, error1)
+                }
             }
-
-            if (jiraBuherator.moveIssue(it, Statuses.IN_PROGRESS, Statuses.FEEDBACK) || jiraBuherator.moveIssue(it, Statuses.IN_PROGRESS, Statuses.RELEASE)) {
-                logger.info("[${it.key}] closed")
-                println("[${it.key}] closed")
-            } else logger.warn("Can't close [${it.key}](${it.assignee?.name}) (${it.status.name})")
         }
     }
 
@@ -63,6 +82,7 @@ class Sprint(val jiraBuherator: JiraBuherator) {
             h2.Feladatok
             * nyomtatvány XSD és XSLT kialakítása
             * XSD-ből DTO-k kialakítása
+            * catalog.xml frissítése
             """.trimIndent()
         )
 
@@ -179,5 +199,11 @@ class Sprint(val jiraBuherator: JiraBuherator) {
 
     companion object {
         private val logger = LoggerFactory.getLogger(Sprint::class.java)
+    }
+
+    class SprintResult {
+        var time: LocalDateTime = LocalDateTime.now()
+        var successfull: List<Issue> = emptyList()
+        var failed: List<Pair<Issue, String>> = emptyList()
     }
 }

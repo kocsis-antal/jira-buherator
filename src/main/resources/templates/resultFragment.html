@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="hu">
+<body th:fragment="resultFragment(result)"
+      th:object="${result}"
+      th:remove="tag">
+<!--/*@thymesVar id="result" type="hu.microsec.cegbir.kocsis.helper.Sprint.SprintResult"*/-->
+
+<div th:if="${result}!=null">
+    <p>Time: <span th:text="*{time}">now</span></p>
+    <h3>successfull:</h3>
+    <ul>
+        <li th:each="issue: *{successfull}">
+            <a th:href="@{'https://jira.intra.microsec.hu/browse/' + ${issue.key}}" th:text="${issue.key}"></a> <span th:text="'(' + ${issue.assignee?.name} + ') ' + ${issue.status.name}"></span>
+        </li>
+    </ul>
+    <h3>failed:</h3>
+    <ul>
+        <li th:each="pair: *{failed}">
+            <a th:href="@{'https://jira.intra.microsec.hu/browse/' + ${pair.first.key}}" th:text="${pair.first.key}"></a> <span th:text="${pair.first.summary}"></span> <i th:text="' (' + ${pair.first.assignee?.name} + ') '"></i><span th:text="': ' + ${pair.second}"></span>
+        </li>
+    </ul>
+</div>
+<div th:unless="${result}!=null">Not yet moved</div>
+
+</body>
+</html>

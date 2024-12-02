@@ -1,4 +1,4 @@
-package hu.microsec.cegbir.kocsis
+package hu.microsec.cegbir.kocsis.app
 
 import hu.microsec.cegbir.kocsis.gitlab.GitLabProperties
 import hu.microsec.cegbir.kocsis.helper.ReleaseHtml
@@ -26,7 +26,7 @@ private const val REPORT_TIME_SPENT = "rts"
 private const val ROVAT = "rovat"
 
 @EnableConfigurationProperties(JiraProperties::class, GitLabProperties::class)
-@SpringBootApplication()
+@SpringBootApplication(scanBasePackages = ["hu.microsec.cegbir.kocsis.helper", "hu.microsec.cegbir.kocsis.jira", "hu.microsec.cegbir.kocsis.gitlab"])
 open class CcBuheratorApp(
     val report: Report,
     val tester: Tester,
@@ -58,6 +58,7 @@ open class CcBuheratorApp(
         DefaultParser().parse(options, args).run {
             when {
                 hasOption("test") -> tester.test() // sprint
+
                 hasOption(REPORT_TIME_SPENT) -> report.timeSpent(getOptionValue(REPORT_TIME_SPENT))
                 hasOption(MOVE_TO_READY) -> sprintHelper.moveToReady()
                 hasOption(CLOSE_REMAINED) -> sprintHelper.closeRemained() // release
@@ -115,5 +116,7 @@ open class CcBuheratorApp(
 //        }
 
 fun main(args: Array<String>) {
-    runApplication<CcBuheratorApp>(*args)
+    runApplication<CcBuheratorApp>(*args) {
+        webApplicationType = org.springframework.boot.WebApplicationType.NONE
+    }
 }

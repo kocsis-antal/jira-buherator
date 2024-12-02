@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <title th:text="${appName}">appName</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>Hello!</h1>
+<p>Welcome to <span th:text="${appName}">Our App</span></p>
+<!--/*@thymesVar id="moveToReady" type="hu.microsec.cegbir.kocsis.helper.Sprint.SprintResult"*/-->
+<!--/*@thymesVar id="closeRemained" type="hu.microsec.cegbir.kocsis.helper.Sprint.SprintResult"*/-->
+
+<h2>Actions</h2>
+<button onclick="doAction('move')">Move</button>
+<button onclick="doAction('close')">Close</button>
+<script>
+    function doAction(action) {
+        fetch(`/api?${action}=${action}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok for ${action}');
+                }
+
+                location.reload();
+            })
+            .catch(error => console.error(error));
+    }
+</script>
+
+<h2>Moved</h2>
+<th:block th:insert="~{resultFragment :: resultFragment(result=${moveToReady})}">results</th:block>
+
+<h2>Closed</h2>
+<th:block th:insert="~{resultFragment :: resultFragment(result=${closeRemained})}">results</th:block>
+
+</body>
+</html>

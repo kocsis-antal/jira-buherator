@@ -71,35 +71,31 @@ class JiraBuherator(
         return newIssue
     }
 
-    fun moveIssue(issue: Issue, from: Statuses, to: Statuses): Boolean = getIssue(issue.key).run {
+    fun moveIssue(issue: Issue, from: Statuses, to: Statuses): String? = getIssue(issue.key).run {
         if (status.name == to.statusName) {
-            logger.info("Can't move [${key} - ${issue.summary}] issue: already in [${to.statusName}] status")
-            true
+            "Already in [${to.statusName}] status"
         } else if (status.name != from.statusName) {
-            logger.info("Can't move [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue: it's not in ${from.statusName} status (current: ${status.name})")
-            false
+            "It's not in ${from.statusName} status (current: ${status.name})"
         } else moveIssue(this, to)
     }
 
-    fun moveIssue(issue: Issue, to: Statuses): Boolean = if (issue.status.name == to.statusName) {
+    fun moveIssue(issue: Issue, to: Statuses): String? = if (issue.status.name == to.statusName) {
         logger.debug("Can't move [${issue.key} - ${issue.summary}] issue: already in [${to.statusName}] status")
-        true
+        null
     } else {
         issueClient.getTransitions(issue.transitionsUri).claim().singleOrNull { transition -> transition.name.equals(to.statusName) }.let {
             if (it == null) {
-                logger.debug("On [${issue.key} - ${issue.summary}](${issue.assignee?.name}) issue no transition from [${issue.status.name}] to [${to.statusName}]")
-                false
+                "No transition from [${issue.status.name}] to [${to.statusName}]"
             } else {
                 try {
                     issueClient.transition(issue, TransitionInput(it.id)).claim()
                     logger.info("Moved [${issue.key} - ${issue.summary}] issue from [${issue.status.name}] to [${to.statusName}]")
-                    true
+                    null
                 } catch (e: RestClientException) {
                     logger.warn("Error moving [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue from [${issue.status.name}] to [${to.statusName}]: ${e.errorCollections.map { it.errors }}")
-                    false
+                    e.errorCollections.map { it.errors }.joinToString { it.map { "${it.key} - ${it.value}" }.joinToString { it } }
                 } catch (e: Exception) {
-                    logger.warn("Error moving [${issue.key} - ${issue.summary} (${issue.assignee?.name})] issue from [${issue.status.name}] to [${to.statusName}]: ${e.localizedMessage}")
-                    false
+                    e.localizedMessage
                 }
             }
         }

@@ -1,6 +1,6 @@
 package hu.microsec.cegbir.kocsis.helper
 
-import hu.microsec.cegbir.kocsis.CcBuheratorApp
+import hu.microsec.cegbir.kocsis.app.CcBuheratorApp
 import hu.microsec.cegbir.kocsis.gitlab.GitBranchDTO
 import hu.microsec.cegbir.kocsis.gitlab.GitMergeRequestDTO
 import hu.microsec.cegbir.kocsis.gitlab.GitProjectDTO
